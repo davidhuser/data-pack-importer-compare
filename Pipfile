@@ -13,4 +13,3 @@ name = "pypi"
 
 pandas = "*"
 numpy = "*"
-"jinja2" = "*"
