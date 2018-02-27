@@ -5,9 +5,6 @@ from datetime import datetime
 
 import pandas as pd
 
-folders = {'jason', 'david'}
-country = 'swazi'
-
 
 class color:
     RED = '\033[91m'
@@ -32,10 +29,17 @@ def parse_args():
                         help="File path of second folder"
                         )
 
+    parser.add_argument('--country',
+                        dest='country',
+                        action='store',
+                        required=True,
+                        help="Country string"
+                        )
+
     return parser.parse_args()
 
 
-def get_path(directory, level, typ):
+def get_path(directory, country, level, typ):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     return os.path.join(dir_path, directory, '{}_{}_{}.json'.format(country, level, typ))
 
@@ -56,10 +60,10 @@ def detailed(df1, df2, paths):
     print("Saved to {}{}{}".format(color.BOLD, filename, color.END))
 
 
-def compare(dir_paths, levels, types):
+def compare(dir_paths, country, levels, types):
     for level in levels:
         for typ in types:
-            comparable_files = [get_path(f, level, typ) for f in dir_paths]
+            comparable_files = [get_path(f, country, level, typ) for f in dir_paths]
             path1 = comparable_files[0]
             filename1 = file_identifier(path1)
             path2 = comparable_files[1]
@@ -86,6 +90,7 @@ if __name__ == '__main__':
     args = parse_args()
     compare(
         dir_paths=[args.folder1, args.folder2],
+        country=args.country,
         levels=['psnu', 'site'],
         types=['normal', 'hts']
     )
