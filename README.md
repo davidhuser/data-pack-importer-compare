@@ -13,11 +13,28 @@ pipenv install
 
 ```bash
 pipenv shell
-python compare.py --folder1 data/v1 --folder2 data/v2 --country swazi
+
+python compare.py --help
+
+Compare data JSONs in folders
+
+arguments:
+  -h, --help           show this help message and exit
+  --folder1 FOLDER1    File path of first folder
+  --folder2 FOLDER2    File path of second folder
+  --country COUNTRY    Country string, e.g. "nigeria"
+  --level              Level, either "psnu" or "site"
+  --type               Type, either "normal" or "hts"
+```
+
+e.g.
+
+```bash
+python compare.py --folder1 data/v1 --folder2 data/v2 --country swazi --level psnu --type normal
 ```
 
 Outputs a CSV file showing the difference between each file.
-Uses `pandas` DataFrame and applying a merge and outer join.
+Uses a `pandas` DataFrame and applying a _merge_ and _outer join_.
 
 #### Example folder structure
 

@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 from datetime import datetime
 
 import pandas as pd
@@ -10,6 +11,76 @@ class color:
     RED = '\033[91m'
     BOLD = '\033[1m'
     END = '\033[0m'
+
+
+class DpicException(Exception):
+    """base exception """
+
+
+class WbInfoException(DpicException):
+    """aa"""
+
+
+class SiteData(object):
+
+    def __init__(self, country, level, typ, path):
+        self.country = country
+        self.level = level
+        self.typ = typ
+        self.path = path
+        self.identifier = self.file_identifier()
+        self.df = self.create_data_frame()
+        self.info = self.get_info()
+        self.validate_info()
+
+    def create_data_frame(self):
+        with open(self.path, 'r') as jf:
+            data = json.dumps(json.load(jf).get('data'))
+            return pd.read_json(data)
+
+    def get_info(self):
+        with open(self.path, 'r') as jf:
+            return json.load(jf)['wb_info']
+
+    def validate_info(self):
+        if self.info.get('wb_path') in ("", None):
+            raise WbInfoException("wb_path not existent")
+
+        try:
+            datetime.strptime(self.info.get('timestamp'), '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            raise WbInfoException("datetime could not be parsed: {}".format(self.info.get('timestamp')))
+
+        valid_wb_types = {'NORMAL', 'HTS', 'NORMAL_SITE', 'HTS_SITE'}
+        if self.info.get('wb_type') not in valid_wb_types:
+            raise WbInfoException("wb_type not {}: {}".format(valid_wb_types, self.info.get('wb_type')))
+
+        if self.info.get('ou_name') in ("", None):
+            raise WbInfoException('ou_name not existent')
+
+        if not re.compile('^[A-Za-z][A-Za-z0-9]{10}$').match(self.info.get('ou_uid')):
+            raise WbInfoException('ou_uid not a valid DHIS2 uid: {}'.format(self.info.get('ou_uid')))
+
+        if not isinstance(self.info.get('is_clustered'), bool):
+            raise WbInfoException('is_clustered is not true or false')
+
+        if self.info.get('distribution_method') not in (2017, 2018):
+            raise WbInfoException('distribution_method not 2017 or 2018')
+
+        if self.info.get('support_files_path') in ("", None):
+            raise WbInfoException('support_files_path not existent')
+
+    def file_identifier(self):
+        common = self.path
+        for i in range(2):
+            common = os.path.dirname(common)
+        return os.path.relpath(self.path, common)
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and pd.DataFrame.equals(self.df, other.df)
+
+    def __ne__(self, other):
+        return not self == other
 
 
 def parse_args():
@@ -60,15 +131,8 @@ def get_path(directory, country, level, typ):
     return os.path.join(dir_path, directory, '{}_{}_{}.json'.format(country, level, typ))
 
 
-def file_identifier(file_path):
-    common = file_path
-    for i in range(2):
-        common = os.path.dirname(common)
-    return os.path.relpath(file_path, common)
-
-
-def detailed(df1, df2, paths, level, typ):
-    df = df1.merge(df2, how='outer', indicator=True)
+def detailed(sd1, sd2):
+    df = sd1.df.merge(sd2.df, how='outer', indicator=True)
     with pd.option_context('display.max_rows', 30, 'display.max_columns', 8):
         print(df.copy().rename(columns={
             'attributeoptioncombo': 'aoc',
@@ -76,41 +140,40 @@ def detailed(df1, df2, paths, level, typ):
             'supportType': 'st'
         })[df['_merge'] != 'both'])
     now = datetime.now().strftime('%F-%H%M%S')
-    filename = "{}_{}_{}_diff_{}.csv".format('_'.join(paths).replace('/', '_'), level, typ, now)
+    filename = "{}_{}_{}_diff_{}.csv".format(
+        sd1.country,
+        sd1.level,
+        sd1.typ,
+        now
+    )
     pd.DataFrame.to_csv(df, filename)
     print("Saved to {}{}{}".format(color.BOLD, filename, color.END))
 
 
-def compare(dir_paths, country, level, typ):
-        comparable_files = [get_path(f, country, level, typ) for f in dir_paths]
-        path1 = comparable_files[0]
-        filename1 = file_identifier(path1)
-        path2 = comparable_files[1]
-        filename2 = file_identifier(path2)
+def compare(sd1, sd2):
+    equal = sd1 == sd2
 
-        with open(path1, 'r') as jf:
-            data = json.dumps(json.load(jf).get('data'))
-            df1 = pd.read_json(data)
+    c = color.RED if not equal else color.BOLD
+    f1 = "{}{}{}".format(c, sd1.file_identifier(), color.END)
+    f2 = "{}{}{}".format(c, sd2.file_identifier(), color.END)
+    eq = "{}{}{}".format(c, equal, color.END)
 
-        with open(path2, 'r') as jf:
-            data = json.dumps(json.load(jf).get('data'))
-            df2 = pd.read_json(data)
+    print("Comparing {} with {} - equal: {}".format(f1, f2, eq))
+    if not equal:
+        detailed(sd1, sd2)
 
-        equal = pd.DataFrame.equals(df1, df2)
-        c = color.RED if not equal else color.BOLD
-        print("Comparing {0}{2}{1} with {0}{3}{1} - equal: {0}{4}{1}".format(c,
-                                                                             color.END,
-                                                                             filename1,
-                                                                             filename2,
-                                                                             equal))
-        if not equal:
-            print("{0}LEFT/DF1:{2}{1} - {0}RIGHT/DF2:{3}{1}".format(color.BOLD, color.END, filename1, filename2))
-            detailed(df1, df2, dir_paths, level, typ)
+
+def run(dir_paths, country, level, typ):
+    comparable_files = [get_path(f, country, level, typ) for f in dir_paths]
+
+    sd1 = SiteData(country, level, typ, comparable_files[0])
+    sd2 = SiteData(country, level, typ, comparable_files[1])
+    compare(sd1, sd2)
 
 
 if __name__ == '__main__':
     args = parse_args()
-    compare(
+    run(
         dir_paths=[args.folder1, args.folder2],
         country=args.country,
         level=args.level,
