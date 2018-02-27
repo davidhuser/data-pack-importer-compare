@@ -67,7 +67,7 @@ def file_identifier(file_path):
     return os.path.relpath(file_path, common)
 
 
-def detailed(df1, df2, paths):
+def detailed(df1, df2, paths, level, typ):
     df = df1.merge(df2, how='outer', indicator=True)
     with pd.option_context('display.max_rows', 30, 'display.max_columns', 8):
         print(df.copy().rename(columns={
@@ -76,7 +76,7 @@ def detailed(df1, df2, paths):
             'supportType': 'st'
         })[df['_merge'] != 'both'])
     now = datetime.now().strftime('%F-%H%M%S')
-    filename = "{}_diff_{}.csv".format('_'.join(paths).replace('/', '_'), now)
+    filename = "{}_{}_{}_diff_{}.csv".format('_'.join(paths).replace('/', '_'), level, typ, now)
     pd.DataFrame.to_csv(df, filename)
     print("Saved to {}{}{}".format(color.BOLD, filename, color.END))
 
@@ -105,7 +105,7 @@ def compare(dir_paths, country, level, typ):
                                                                              equal))
         if not equal:
             print("{0}LEFT/DF1:{2}{1} - {0}RIGHT/DF2:{3}{1}".format(color.BOLD, color.END, filename1, filename2))
-            detailed(df1, df2, dir_paths)
+            detailed(df1, df2, dir_paths, level, typ)
 
 
 if __name__ == '__main__':
