@@ -69,12 +69,12 @@ def file_identifier(file_path):
 
 def detailed(df1, df2, paths):
     df = df1.merge(df2, how='outer', indicator=True)
-    with pd.option_context('display.max_rows', 30, 'display.max_columns', 5):
+    with pd.option_context('display.max_rows', 30, 'display.max_columns', 8):
         print(df.copy().rename(columns={
             'attributeoptioncombo': 'aoc',
             'categoryoptioncombo': 'coc',
-            'supportType': 'supType'
-        }))
+            'supportType': 'st'
+        })[df['_merge'] != 'both'])
     now = datetime.now().strftime('%F-%H%M%S')
     filename = "{}_diff_{}.csv".format('_'.join(paths).replace('/', '_'), now)
     pd.DataFrame.to_csv(df, filename)
