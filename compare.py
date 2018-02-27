@@ -1,5 +1,6 @@
 import json
 import os
+import argparse
 from datetime import datetime
 
 import pandas as pd
@@ -14,9 +15,29 @@ class color:
     END = '\033[0m'
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(usage='%(prog)s',
+                                     description="Compare data JSONs in folders")
+    parser.add_argument('--folder1',
+                        dest='folder1',
+                        action='store',
+                        required=True,
+                        help="File path of first folder"
+                        )
+
+    parser.add_argument('--folder2',
+                        dest='folder2',
+                        action='store',
+                        required=True,
+                        help="File path of second folder"
+                        )
+
+    return parser.parse_args()
+
+
 def get_path(directory, level, typ):
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    return os.path.join(dir_path, 'data', directory, '{}_{}_{}.json'.format(country, level, typ))
+    return os.path.join(dir_path, directory, '{}_{}_{}.json'.format(country, level, typ))
 
 
 def file_identifier(file_path):
@@ -26,19 +47,19 @@ def file_identifier(file_path):
     return os.path.relpath(file_path, common)
 
 
-def detailed(df1, df2):
+def detailed(df1, df2, paths):
     df = df1.merge(df2, how='outer', indicator=True)
     print(df)
     now = datetime.now().strftime('%F-%H%M%S')
-    filename = "{}_diff_{}.csv".format('_'.join(folders), now)
+    filename = "{}_diff_{}.csv".format('_'.join(paths).replace('/', '_'), now)
     pd.DataFrame.to_csv(df, filename)
     print("Saved to {}{}{}".format(color.BOLD, filename, color.END))
 
 
-def compare(levels, types):
+def compare(dir_paths, levels, types):
     for level in levels:
         for typ in types:
-            comparable_files = [get_path(f, level, typ) for f in folders]
+            comparable_files = [get_path(f, level, typ) for f in dir_paths]
             path1 = comparable_files[0]
             filename1 = file_identifier(path1)
             path2 = comparable_files[1]
@@ -58,11 +79,13 @@ def compare(levels, types):
                                                                                  color.END))
             if not equal:
                 print("LEFT/DF1:{} - RIGHT/DF2:{}".format(filename1, filename2))
-                detailed(df1, df2)
+                detailed(df1, df2, dir_paths)
 
 
 if __name__ == '__main__':
+    args = parse_args()
     compare(
+        dir_paths=[args.folder1, args.folder2],
         levels=['psnu', 'site'],
         types=['normal', 'hts']
     )

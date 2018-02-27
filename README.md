@@ -13,6 +13,11 @@ pipenv shell
 
 example:
 
+```bash
+python compare.py --folder1 data/v1 --folder2 data/v2
+```
+
+folder structure:
 ```
 data/
 ├── v1/
