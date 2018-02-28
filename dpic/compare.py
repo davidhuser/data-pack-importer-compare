@@ -3,7 +3,6 @@ import json
 import os
 import re
 from datetime import datetime
-from collections import OrderedDict
 
 import pandas as pd
 
@@ -180,7 +179,7 @@ def run(dir_paths, country, level, typ):
     compare(sd1, sd2)
 
 
-if __name__ == '__main__':
+def main():
     args = parse_args()
     run(
         dir_paths=[args.folder1, args.folder2],
@@ -188,3 +187,7 @@ if __name__ == '__main__':
         level=args.level,
         typ=args.type
     )
+
+
+if __name__ == '__main__':
+    main()

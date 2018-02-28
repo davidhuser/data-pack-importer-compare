@@ -79,6 +79,7 @@ disagg_tool=paste0(disagg_tools, disagg_tool_file)
 wb<-disagg_tool
 wb
 psnu_data<-ImportSheets(wb, distribution_method = distribution_year, support_files_path = support_files)
+prepare_export_to_datim(psnu_data)
 cat(toJSON(psnu_data, auto_unbox = TRUE), file = psnu_json_file)
 site_data<-distributeSite(psnu_data)
 export_site_level_tool(site_data)
