@@ -83,7 +83,7 @@ setup(
     license='BSD3',
     entry_points={
         'console_scripts': [
-            'dpi-compare = dpi.compare:main'
+            'dpi-compare = dpic.compare:main'
         ]
     },
     classifiers=[
