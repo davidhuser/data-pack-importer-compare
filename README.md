@@ -1,5 +1,7 @@
 # Compare psnu and site jsons
 
+[![Build Status](https://travis-ci.org/davidhuser/data-pack-importer-compare.svg?branch=master)](https://travis-ci.org/davidhuser/data-pack-importer-compare)
+
 ### Install
 
 ```bash
