@@ -81,6 +81,9 @@ setup(
     url='https://github.com/davidhuser/data-pack-importer-compare',
     keywords='datim',
     license='BSD3',
+    install_requires=[
+        'pandas'
+    ],
     entry_points={
         'console_scripts': [
             'dpi-compare = dpic.compare:main'
