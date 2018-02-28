@@ -5,7 +5,7 @@
 ### Install
 
 ```bash
-pip install dpi-compare
+pip install dpi-compare --user
 ```
 
 ### Usage
