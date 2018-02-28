@@ -2,14 +2,14 @@
 
 ### Install
 
-`pip install dpi-compare`
+```bash
+pip install dpi-compare
+```
 
 ### Usage
 
 ```bash
-pipenv shell
-
-python compare.py --help
+dpi-compare --help
 
 Compare data JSONs in folders
 
@@ -25,7 +25,7 @@ arguments:
 e.g.
 
 ```bash
-python compare.py --folder1 data/v1 --folder2 data/v2 --country swazi --level psnu --type normal
+dpi-compare --folder1 data/v1 --folder2 data/v2 --country swazi --level psnu --type normal
 ```
 
 Outputs a CSV file showing the difference between each file.
@@ -90,7 +90,7 @@ cat(toJSON(site_data, auto_unbox = TRUE), file = site_json_file)
 pip install pipenv
 git clone <this repo>
 cd <this repo>
-pipenv install
+pipenv install --dev
 ```
 
 ## Tests
