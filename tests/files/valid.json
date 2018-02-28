@@ -1,0 +1,45 @@
+{
+  "wb_info": {
+    "wb_path": "/vagrant/disagg_tools/TestCountryCOP18DisaggToolv2018.02.26_HTSSELF fixed.xlsx",
+    "timestamp": "2018-02-26 14:21:01",
+    "wb_type": "NORMAL",
+    "ou_name": "TestCountry",
+    "ou_uid": "V0qMZH29CtN",
+    "is_clustered": false,
+    "distribution_method": 2017,
+    "support_files_path": "/vagrant/support_files/"
+  },
+  "follow_on_mechs": [
+    {
+      "Closing Out": 11111,
+      "Follow on": 99999,
+      "Notes": "example"
+    }
+  ],
+  "data": [
+    {
+      "dataelement": "de1",
+      "period": "2018Oct",
+      "orgunit": "ou1",
+      "categoryoptioncombo": "coc1",
+      "attributeoptioncombo": "aoc1",
+      "value": "123.45"
+    },
+    {
+      "dataelement": "de2",
+      "period": "2018Oct",
+      "orgunit": "ou2",
+      "categoryoptioncombo": "coc2",
+      "attributeoptioncombo": "aoc2",
+      "value": "301.484"
+    },
+    {
+      "dataelement": "de3",
+      "period": "2018Oct",
+      "orgunit": "nxGb6sd7p7D",
+      "categoryoptioncombo": "coc3",
+      "attributeoptioncombo": "aoc3",
+      "value": "874.87"
+    }
+  ]
+}

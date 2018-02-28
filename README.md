@@ -2,12 +2,7 @@
 
 ### Install
 
-```bash
-pip install pipenv
-git clone <this repo>
-cd <this repo>
-pipenv install
-```
+`pip install dpi-compare`
 
 ### Usage
 
@@ -87,4 +82,18 @@ site_data<-distributeSite(psnu_data)
 export_site_level_tool(site_data)
 psnu_json_file
 cat(toJSON(site_data, auto_unbox = TRUE), file = site_json_file)
+```
+
+## Develop
+
+```bash
+pip install pipenv
+git clone <this repo>
+cd <this repo>
+pipenv install
+```
+
+## Tests
+```
+python setup.py test
 ```

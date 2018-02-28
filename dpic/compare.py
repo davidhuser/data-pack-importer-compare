@@ -3,6 +3,7 @@ import json
 import os
 import re
 from datetime import datetime
+from collections import OrderedDict
 
 import pandas as pd
 
@@ -13,12 +14,14 @@ class color:
     END = '\033[0m'
 
 
-class DpicException(Exception):
-    """base exception """
+class DPICException(Exception):
+    """Package Base exception """
+    def __init__(self, message):
+        print("{}{}{}".format(color.RED, message, color.END))
 
 
-class WbInfoException(DpicException):
-    """aa"""
+class WbInfoException(DPICException):
+    """Workbook info Exception"""
 
 
 class SiteData(object):
@@ -35,7 +38,7 @@ class SiteData(object):
 
     def create_data_frame(self):
         with open(self.path, 'r') as jf:
-            data = json.dumps(json.load(jf).get('data'))
+            data = json.dumps(sorted(json.load(jf).get('data')))
             return pd.read_json(data)
 
     def get_info(self):
@@ -43,32 +46,39 @@ class SiteData(object):
             return json.load(jf)['wb_info']
 
     def validate_info(self):
+        exc = []
         if self.info.get('wb_path') in ("", None):
-            raise WbInfoException("wb_path not existent")
+            exc.append("wb_path not existent")
 
         try:
             datetime.strptime(self.info.get('timestamp'), '%Y-%m-%d %H:%M:%S')
         except ValueError:
-            raise WbInfoException("datetime could not be parsed: {}".format(self.info.get('timestamp')))
+            exc.append("datetime could not be parsed: {}".format(self.info.get('timestamp')))
+            pass
 
         valid_wb_types = {'NORMAL', 'HTS', 'NORMAL_SITE', 'HTS_SITE'}
         if self.info.get('wb_type') not in valid_wb_types:
-            raise WbInfoException("wb_type not {}: {}".format(valid_wb_types, self.info.get('wb_type')))
+            exc.append("wb_type not {}: {}".format(valid_wb_types, self.info.get('wb_type')))
+        if self.info.get('wb_type') != self.typ.upper():
+            exc.append("wb_type not matching to argument {}: {}".format(self.info.get('wb_type'), self.typ))
 
         if self.info.get('ou_name') in ("", None):
-            raise WbInfoException('ou_name not existent')
+            exc.append('ou_name not existent')
 
         if not re.compile('^[A-Za-z][A-Za-z0-9]{10}$').match(self.info.get('ou_uid')):
-            raise WbInfoException('ou_uid not a valid DHIS2 uid: {}'.format(self.info.get('ou_uid')))
+            exc.append('ou_uid not a valid DHIS2 uid: {}'.format(self.info.get('ou_uid')))
 
         if not isinstance(self.info.get('is_clustered'), bool):
-            raise WbInfoException('is_clustered is not true or false')
+            exc.append('is_clustered is not true or false')
 
         if self.info.get('distribution_method') not in (2017, 2018):
-            raise WbInfoException('distribution_method not 2017 or 2018')
+            exc.append('distribution_method not 2017 or 2018')
 
         if self.info.get('support_files_path') in ("", None):
-            raise WbInfoException('support_files_path not existent')
+            exc.append('support_files_path not existent')
+
+        if exc:
+            raise WbInfoException("{}:\n{}".format(self.path, "\n".join(exc)))
 
     def file_identifier(self):
         common = self.path
@@ -127,8 +137,7 @@ def parse_args():
 
 
 def get_path(directory, country, level, typ):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    return os.path.join(dir_path, directory, '{}_{}_{}.json'.format(country, level, typ))
+    return os.path.join(directory, '{}_{}_{}.json'.format(country, level, typ))
 
 
 def detailed(sd1, sd2):

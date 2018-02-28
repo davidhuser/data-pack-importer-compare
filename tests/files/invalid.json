@@ -1,0 +1,45 @@
+{
+  "wb_info": {
+    "wb_path": "",
+    "timestamp": "20180226 14:21:01",
+    "wb_type": null,
+    "ou_name": "",
+    "ou_uid": "notValid",
+    "is_clustered": null,
+    "distribution_method": 2016,
+    "support_files_path": ""
+  },
+  "follow_on_mechs": [
+    {
+      "Closing Out": 11111,
+      "Follow on": 99999,
+      "Notes": "example"
+    }
+  ],
+  "data": [
+    {
+      "dataelement": "de1",
+      "period": "2018Oct",
+      "orgunit": "ou1",
+      "categoryoptioncombo": "coc1",
+      "attributeoptioncombo": "aoc1",
+      "value": "123.45"
+    },
+    {
+      "dataelement": "de2",
+      "period": "2018Oct",
+      "orgunit": "ou2",
+      "categoryoptioncombo": "coc2",
+      "attributeoptioncombo": "aoc2",
+      "value": "301.484"
+    },
+    {
+      "dataelement": "de3",
+      "period": "2018Oct",
+      "orgunit": "nxGb6sd7p7D",
+      "categoryoptioncombo": "coc3",
+      "attributeoptioncombo": "aoc3",
+      "value": "874.87"
+    }
+  ]
+}
