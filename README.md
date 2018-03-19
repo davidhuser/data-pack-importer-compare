@@ -58,34 +58,7 @@ Files within a directory must have a matching file in the other directory.
 
 ### R script to generate those JSONs
 
-Use [data-pack-importer](https://github.com/jason-p-pickering/data-pack-importer)
-
-```R
-# ADJUST THIS --->
-type="normal"
-country="swazi"
-disagg_tool_file="SwazilandCOP18DisaggToolv2018.02.26_HTSSELF fixed.xlsx"
-distribution_year=2017
-
-# DO NOT CHANGE
-support_files="/vagrant/support_files/"
-disagg_tools="/vagrant/disagg_tools/"
-library(jsonlite)
-library(devtools)
-library(datapackimporter)
-psnu_json_file=paste0(disagg_tools, country, "_psnu_", type, ".json")
-site_json_file=paste0(disagg_tools, country, "_site_", type, ".json")
-disagg_tool=paste0(disagg_tools, disagg_tool_file)
-wb<-disagg_tool
-wb
-psnu_data<-ImportSheets(wb, distribution_method = distribution_year, support_files_path = support_files)
-prepare_export_to_datim(psnu_data)
-cat(toJSON(psnu_data, auto_unbox = TRUE), file = psnu_json_file)
-site_data<-distributeSite(psnu_data)
-export_site_level_tool(site_data)
-psnu_json_file
-cat(toJSON(site_data, auto_unbox = TRUE), file = site_json_file)
-```
+See [data-pack-importer](https://github.com/jason-p-pickering/data-pack-importer)
 
 ## Develop
 
